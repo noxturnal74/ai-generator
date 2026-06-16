@@ -1,106 +1,218 @@
-import { Sparkles, Wand2, Download, Share2, RefreshCcw, Settings, History, Star } from 'lucide-react'
+'use client'
+
+import { useState } from 'react'
+import { Sparkles, Wand2, Download, Share2, RefreshCcw, Settings, History, Star, Loader2, Play } from 'lucide-react'
+
+interface PresetStyle {
+  name: string
+  image: string
+}
+
+interface GeneratedImage {
+  id: number
+  prompt: string
+  style: string
+  ratio: string
+  image: string
+}
 
 export default function AIGeneratorPage() {
-  const styles = ['Photorealistic', 'Oil Painting', 'Watercolor', 'Digital Art', 'Pencil Sketch', 'Anime']
-  const ratios = ['1:1', '16:9', '4:3', '9:16']
-  const generatedImages = [
-    { id: 1, prompt: 'Mystical forest at dawn with golden light', style: 'Photorealistic', emoji: '🌲' },
-    { id: 2, prompt: 'Futuristic city skyline neon lights', style: 'Digital Art', emoji: '🌃' },
-    { id: 3, prompt: 'Portrait of a samurai in cherry blossom garden', style: 'Oil Painting', emoji: '🌸' },
-    { id: 4, prompt: 'Deep ocean creatures bioluminescent', style: 'Watercolor', emoji: '🌊' },
+  const [prompt, setPrompt] = useState('')
+  const [selectedStyle, setSelectedStyle] = useState('Photorealistic')
+  const [selectedRatio, setSelectedRatio] = useState('1:1')
+  const [generating, setGenerating] = useState(false)
+  const [history, setHistory] = useState<GeneratedImage[]>([
+    { id: 1, prompt: 'Mystical forest at dawn with golden light, cinematic rendering', style: 'Photorealistic', ratio: '1:1', image: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=600&auto=format&fit=crop&q=80' },
+    { id: 2, prompt: 'Futuristic city skyline neon lights cyberpunk theme', style: 'Digital Art', ratio: '16:9', image: 'https://images.unsplash.com/photo-1515621061946-eff1c2a352bd?w=600&auto=format&fit=crop&q=80' },
+    { id: 3, prompt: 'Portrait of a samurai in cherry blossom garden', style: 'Oil Painting', ratio: '4:3', image: 'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=600&auto=format&fit=crop&q=80' }
+  ])
+
+  const styles: PresetStyle[] = [
+    { name: 'Photorealistic', image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=150&auto=format&fit=crop&q=80' },
+    { name: 'Digital Art', image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80' },
+    { name: 'Oil Painting', image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=150&auto=format&fit=crop&q=80' },
+    { name: 'Anime', image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=150&auto=format&fit=crop&q=80' },
+    { name: 'Cyberpunk', image: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=150&auto=format&fit=crop&q=80' },
   ]
 
+  const ratios = ['1:1', '16:9', '4:3', '9:16']
+
+  const handleGenerate = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!prompt.trim()) return
+
+    setGenerating(true)
+    setTimeout(() => {
+      const newImg: GeneratedImage = {
+        id: Date.now(),
+        prompt: prompt,
+        style: selectedStyle,
+        ratio: selectedRatio,
+        // Map search terms to unsplash source for semi-realistic generation simulation
+        image: `https://images.unsplash.com/featured/?ai,art,${selectedStyle.toLowerCase()},${encodeURIComponent(prompt)}`
+      }
+      setHistory([newImg, ...history])
+      setPrompt('')
+      setGenerating(false)
+    }, 2000)
+  }
+
   return (
-    <div className="min-h-screen bg-[#000000]">
-      <header className="border-b border-gray-800 p-4 sticky top-0 z-10 bg-[#000000]/90 backdrop-blur-sm">
+    <div className="min-h-screen bg-[#080B10] text-gray-100 transition-colors duration-300">
+      {/* Header */}
+      <header className="border-b border-gray-800/80 p-4 sticky top-0 z-20 bg-[#080B10]/85 backdrop-blur-md">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FF2D55] to-[#5856D6] flex items-center justify-center">
-              <Sparkles className="text-white" size={20} />
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#FF2D55] to-[#5856D6] flex items-center justify-center shadow-lg shadow-purple-500/20">
+              <Sparkles className="text-white" size={24} />
             </div>
-            <h1 className="text-xl font-bold text-white">PixelAI</h1>
+            <div>
+              <h1 className="text-2xl font-black tracking-tight text-white">PixelAI</h1>
+              <p className="text-[10px] font-bold text-purple-500 uppercase tracking-widest">AI Studio</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button className="p-2 rounded-full hover:bg-gray-800 text-gray-400"><History size={20} /></button>
-            <button className="p-2 rounded-full hover:bg-gray-800 text-gray-400"><Settings size={20} /></button>
+          <div className="flex gap-2">
+            <button className="p-2.5 rounded-xl bg-gray-900 border border-gray-800 hover:bg-gray-800 transition-colors">
+              <History size={18} className="text-gray-400" />
+            </button>
+            <button className="p-2.5 rounded-xl bg-gray-900 border border-gray-800 hover:bg-gray-800 transition-colors">
+              <Settings size={18} className="text-gray-400" />
+            </button>
           </div>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto p-4 space-y-6">
-        <div className="text-center py-8">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#FF2D55] to-[#5856D6] text-white px-4 py-2 rounded-full text-sm font-medium mb-4">
-            <Sparkles size={14} /> Powered by Stable Diffusion XL
+        {/* Welcome Section */}
+        <div className="text-center py-8 space-y-3">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#FF2D55] to-[#5856D6] text-white px-4 py-1.5 rounded-full text-xs font-semibold shadow-md shadow-purple-500/10">
+            <Sparkles size={14} className="animate-spin-slow" /> Powered by Stable Diffusion 3.0
           </div>
-          <h2 className="text-4xl font-bold text-white mb-2">Create with AI</h2>
-          <p className="text-gray-400">Describe your vision, and watch it come to life</p>
+          <h2 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">Create Magic with AI</h2>
+          <p className="text-gray-400 max-w-md mx-auto text-sm">Describe your imaginative vision, select presets, and render in high-fidelity.</p>
         </div>
 
-        <div className="bg-[#1C1C1E] rounded-2xl p-6 space-y-4">
-          <textarea
-            placeholder="A breathtaking mountain landscape at golden hour, misty valleys, dramatic lighting, shot with Hasselblad..."
-            rows={4}
-            className="w-full bg-[#2C2C2E] text-white placeholder-gray-500 rounded-xl p-4 resize-none focus:outline-none focus:ring-2 focus:ring-[#5856D6] border border-gray-700"
-          />
-          
-          <div className="space-y-3">
-            <label className="text-sm font-medium text-gray-400">Style</label>
-            <div className="flex gap-2 flex-wrap">
-              {styles.map((style, i) => (
-                <button key={style} className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${i === 0 ? 'bg-[#5856D6] text-white' : 'bg-[#2C2C2E] text-gray-400 hover:text-white hover:bg-[#3A3A3C]'}`}>
-                  {style}
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* Input Form */}
+        <section className="bg-[#121824] rounded-3xl p-6 border border-gray-800/60 shadow-xl space-y-6">
+          <form onSubmit={handleGenerate} className="space-y-4">
+            <textarea
+              value={prompt}
+              onChange={e => setPrompt(e.target.value)}
+              placeholder="Describe your vision (e.g., A futuristic cyberpunk city in neon rain, photorealistic, 8k resolution...)"
+              rows={3}
+              className="w-full bg-[#1A2332] text-white placeholder-gray-500 rounded-2xl p-4 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 border border-gray-800"
+              required
+            />
 
-          <div className="grid grid-cols-2 gap-4">
+            {/* Style Selector */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-400">Aspect Ratio</label>
-              <div className="flex gap-2">
-                {ratios.map((ratio, i) => (
-                  <button key={ratio} className={`flex-1 py-2 rounded-xl text-xs font-medium ${i === 0 ? 'bg-[#5856D6] text-white' : 'bg-[#2C2C2E] text-gray-400 hover:text-white'}`}>{ratio}</button>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Style presets</label>
+              <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-none">
+                {styles.map((style) => (
+                  <button
+                    type="button"
+                    key={style.name}
+                    onClick={() => setSelectedStyle(style.name)}
+                    className={`flex-shrink-0 relative w-28 h-20 rounded-2xl overflow-hidden border-2 transition-all ${
+                      selectedStyle === style.name ? 'border-[#5856D6] scale-102 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    <img src={style.image} alt={style.name} className="object-cover w-full h-full" />
+                    <div className="absolute inset-0 bg-black/50 flex items-end p-2">
+                      <span className="text-[10px] font-bold text-white truncate w-full">{style.name}</span>
+                    </div>
+                  </button>
                 ))}
               </div>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-400">Quality</label>
-              <select className="w-full bg-[#2C2C2E] text-white rounded-xl p-2 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-[#5856D6]">
-                <option>Standard</option>
-                <option>HD</option>
-                <option>4K Ultra</option>
-              </select>
+
+            {/* Ratio & Submit Button */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center pt-2">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Aspect Ratio</label>
+                <div className="flex gap-2">
+                  {ratios.map((ratio) => (
+                    <button
+                      type="button"
+                      key={ratio}
+                      onClick={() => setSelectedRatio(ratio)}
+                      className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border ${
+                        selectedRatio === ratio 
+                          ? 'bg-[#5856D6] border-transparent text-white' 
+                          : 'bg-[#1A2332] border-gray-800 text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      {ratio}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={generating}
+                className="w-full bg-gradient-to-r from-[#FF2D55] to-[#5856D6] hover:opacity-95 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-purple-500/20 active:scale-98 flex items-center justify-center gap-2 mt-4 sm:mt-auto"
+              >
+                {generating ? (
+                  <>
+                    <Loader2 className="animate-spin" size={18} />
+                    <span>Rendering artwork...</span>
+                  </>
+                ) : (
+                  <>
+                    <Wand2 size={18} />
+                    <span>Generate Artwork</span>
+                  </>
+                )}
+              </button>
             </div>
-          </div>
+          </form>
+        </section>
 
-          <button className="w-full bg-gradient-to-r from-[#FF2D55] to-[#5856D6] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
-            <Wand2 size={20} /> Generate Image
-          </button>
-        </div>
+        {/* Live Generation History */}
+        <section className="space-y-4">
+          <h3 className="text-xl font-bold text-white">Generation History</h3>
 
-        <div className="bg-[#1C1C1E] rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-white">Recent Generations</h3>
-            <button className="text-[#5856D6] text-sm font-medium">View All</button>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {generatedImages.map((img) => (
-              <div key={img.id} className="bg-[#2C2C2E] rounded-xl overflow-hidden">
-                <div className="h-32 flex items-center justify-center text-6xl">{img.emoji}</div>
-                <div className="p-3">
-                  <p className="text-white text-xs font-medium truncate mb-1">{img.prompt}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">{img.style}</span>
-                    <div className="flex gap-2">
-                      <button className="p-1 hover:text-white text-gray-500"><Download size={14} /></button>
-                      <button className="p-1 hover:text-white text-gray-500"><Share2 size={14} /></button>
+          {history.length === 0 ? (
+            <div className="bg-[#121824] rounded-3xl p-12 text-center border border-dashed border-gray-800">
+              <div className="text-5xl mb-2">??</div>
+              <h4 className="font-bold text-gray-500">No images generated yet</h4>
+              <p className="text-xs text-gray-600">Enter a prompt above to create your first artwork!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {history.map((item) => (
+                <div 
+                  key={item.id} 
+                  className="bg-[#121824] rounded-3xl overflow-hidden border border-gray-800/80 shadow-lg flex flex-col group hover:shadow-xl transition-all duration-300"
+                >
+                  <div className="relative h-60 w-full overflow-hidden bg-gray-900">
+                    <img src={item.image} alt={item.prompt} className="object-cover w-full h-full group-hover:scale-102 transition-transform duration-500" />
+                    <span className="absolute top-4 left-4 bg-black/80 backdrop-blur-md text-white text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-lg uppercase">
+                      {item.style} ? {item.ratio}
+                    </span>
+                  </div>
+                  <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
+                    <p className="text-sm text-gray-300 leading-relaxed italic">"{item.prompt}"</p>
+                    <div className="flex justify-between items-center pt-4 border-t border-gray-800">
+                      <button className="flex items-center gap-1.5 text-xs text-amber-500 font-bold">
+                        <Star className="fill-current" size={14} /> Highlight
+                      </button>
+                      <div className="flex gap-2">
+                        <button className="p-2 bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors">
+                          <Share2 size={14} className="text-gray-400" />
+                        </button>
+                        <button className="p-2 bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors">
+                          <Download size={14} className="text-gray-400" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          )}
+        </section>
       </main>
     </div>
   )
