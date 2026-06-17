@@ -1,4 +1,4 @@
-# ?? AI Generator
+# ? AI Generator
 AI-powered image generation tool using OpenAI API.
 
 ## Features

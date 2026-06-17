@@ -21,6 +21,7 @@ export default function AIGeneratorPage() {
   const [selectedStyle, setSelectedStyle] = useState('Photorealistic')
   const [selectedRatio, setSelectedRatio] = useState('1:1')
   const [generating, setGenerating] = useState(false)
+  const [generatingStep, setGeneratingStep] = useState('')
   const [history, setHistory] = useState<GeneratedImage[]>([
     { id: 1, prompt: 'Mystical forest at dawn with golden light, cinematic rendering', style: 'Photorealistic', ratio: '1:1', image: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=600&auto=format&fit=crop&q=80' },
     { id: 2, prompt: 'Futuristic city skyline neon lights cyberpunk theme', style: 'Digital Art', ratio: '16:9', image: 'https://images.unsplash.com/photo-1515621061946-eff1c2a352bd?w=600&auto=format&fit=crop&q=80' },
@@ -42,19 +43,31 @@ export default function AIGeneratorPage() {
     if (!prompt.trim()) return
 
     setGenerating(true)
+    setGeneratingStep('Initializing renderer...')
+    
+    // Simulate generation steps for production-grade AI feel
     setTimeout(() => {
-      const newImg: GeneratedImage = {
-        id: Date.now(),
-        prompt: prompt,
-        style: selectedStyle,
-        ratio: selectedRatio,
-        // Map search terms to unsplash source for semi-realistic generation simulation
-        image: `https://images.unsplash.com/featured/?ai,art,${selectedStyle.toLowerCase()},${encodeURIComponent(prompt)}`
-      }
-      setHistory([newImg, ...history])
-      setPrompt('')
-      setGenerating(false)
-    }, 2000)
+      setGeneratingStep('Sampling noise vectors...')
+      setTimeout(() => {
+        setGeneratingStep('Refining details (50%)...')
+        setTimeout(() => {
+          setGeneratingStep('Polishing canvas (90%)...')
+          setTimeout(() => {
+            const newImg: GeneratedImage = {
+              id: Date.now(),
+              prompt: prompt,
+              style: selectedStyle,
+              ratio: selectedRatio,
+              image: `https://images.unsplash.com/featured/?ai,art,${selectedStyle.toLowerCase()},${encodeURIComponent(prompt)}`
+            }
+            setHistory([newImg, ...history])
+            setPrompt('')
+            setGenerating(false)
+            setGeneratingStep('')
+          }, 600)
+        }, 600)
+      }, 600)
+    }, 600)
   }
 
   return (
@@ -156,7 +169,7 @@ export default function AIGeneratorPage() {
                 {generating ? (
                   <>
                     <Loader2 className="animate-spin" size={18} />
-                    <span>Rendering artwork...</span>
+                    <span className="animate-pulse">{generatingStep}</span>
                   </>
                 ) : (
                   <>
@@ -192,7 +205,7 @@ export default function AIGeneratorPage() {
                       {item.style} ? {item.ratio}
                     </span>
                   </div>
-                  <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="p-5 space-y-4 flex-1 flex flex-col justify-between space-y-4">
                     <p className="text-sm text-gray-300 leading-relaxed italic">"{item.prompt}"</p>
                     <div className="flex justify-between items-center pt-4 border-t border-gray-800">
                       <button className="flex items-center gap-1.5 text-xs text-amber-500 font-bold">
